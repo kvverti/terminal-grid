@@ -1,7 +1,7 @@
 #include <termios.h>
 #include <unistd.h>
 #include <iostream>
-#include "Display.h"
+#include "GridLogic.h"
 
 void setupStdin() {
     struct termios term;
@@ -10,12 +10,11 @@ void setupStdin() {
     tcsetattr(1, TCSANOW, &term);
 }
 
-Display disp { 20, 10, std::cin, std::cout };
-
 int main() {
+    GridLogic grid;
     setupStdin();
-    disp.update();
+    // disp.update();
     while(true) {
-        disp.tick();
+        grid.tick();
     }
 }
