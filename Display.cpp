@@ -10,15 +10,17 @@ enum class Control {
     ArrowDown,
     ArrowRight,
     ArrowLeft,
-    Delete
+    Delete,
+    Command
 };
 
-const std::unordered_map controlCodes = {
-    std::make_pair("\e[A"s, Control::ArrowUp),
-    std::make_pair("\e[B"s, Control::ArrowDown),
-    std::make_pair("\e[C"s, Control::ArrowRight),
-    std::make_pair("\e[D"s, Control::ArrowLeft),
-    std::make_pair("\e[3~"s, Control::Delete)
+const std::unordered_map<std::string, Control> controlCodes = {
+    { "\e[A"s, Control::ArrowUp },
+    { "\e[B"s, Control::ArrowDown },
+    { "\e[C"s, Control::ArrowRight },
+    { "\e[D"s, Control::ArrowLeft },
+    { "\e[3~"s, Control::Delete },
+    { "\e:"s, Control::Command }
 };
 
 Display::Display(size_type width, size_type height, std::istream& input, std::ostream& output):
@@ -74,19 +76,17 @@ void Display::tick() {
 
 void Display::handleEscape() {
     std::string escapeSequence = "\e";
-    char c;
-    input.get(c);
-    escapeSequence += c;
-    input.get(c);
-    escapeSequence += c;
-    if('0' <= c && c <= '9') {
-        // continue to get characters until ~
-        while(c != '~') {
-            input.get(c);
-            escapeSequence += c;
+    auto code = controlCodes.end();
+    do {
+        char c;
+        input.get(c);
+        // reset if char is the escape again
+        if(c == '\e') {
+            escapeSequence.clear();
         }
-    }
-    auto code = controlCodes.find(escapeSequence);
+        escapeSequence += c;
+        code = controlCodes.find(escapeSequence);
+    } while(code == controlCodes.end());
     if(code != controlCodes.end()) {
         switch(code->second) {
             case Control::ArrowUp:
@@ -103,6 +103,9 @@ void Display::handleEscape() {
                 break;
             case Control::Delete:
                 setDisplayPixel(' ');
+                break;
+            case Control::Command:
+                ;
                 break;
             default:
                 ;
