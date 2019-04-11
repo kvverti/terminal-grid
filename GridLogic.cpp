@@ -39,7 +39,7 @@ void GridLogic::tick() {
             disp.setDisplayPixel(' ');
             break;
         case '\n':
-            disp.addCursorPos(0, 1);
+            disp.addCursorPos(-disp.getCursorPos().first, 1);
             break;
         default:
             disp.setDisplayPixel(c);

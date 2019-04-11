@@ -1,7 +1,8 @@
 #include "Display.h"
 #include <ostream>
+#include <utility>
 
-Display::Display(size_type width, size_type height, std::ostream& output):
+Display::Display(int width, int height, std::ostream& output):
         display(width * height, ' '),
         output(output),
         posX(0),
@@ -9,13 +10,17 @@ Display::Display(size_type width, size_type height, std::ostream& output):
         width(width),
         height(height) { }
 
+std::pair<int, int> Display::getCursorPos() const {
+    return { posX, posY };
+}
+
 void Display::update() {
     std::string caps(width + 2, '-');
-    for(size_type i = 0; i < height + 2; ++i) {
+    for(int i = 0; i < height + 2; ++i) {
         output << "\e[A";
     }
     output << caps << '\n';
-    for(size_type i = 0; i < height; ++i) {
+    for(int i = 0; i < height; ++i) {
         auto itr = display.begin() + (i * width);
         output << '|';
         if(i == posY) {
@@ -29,7 +34,7 @@ void Display::update() {
     output << caps << '\n';
 }
 
-void Display::addCursorPos(diff_type dx, diff_type dy) {
+void Display::addCursorPos(int dx, int dy) {
     if((dx >= 0 || posX >= -dx) && posX < width - dx) {
         posX += dx;
     }
