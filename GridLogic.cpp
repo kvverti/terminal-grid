@@ -1,27 +1,6 @@
 #include "GridLogic.h"
-#include <string>
-#include <unordered_map>
+#include "Control.h"
 #include <iostream>
-
-using namespace std::string_literals;
-
-enum class Control {
-    ArrowUp,
-    ArrowDown,
-    ArrowRight,
-    ArrowLeft,
-    Delete,
-    Command
-};
-
-const std::unordered_map<std::string, Control> controlCodes = {
-    { "\e[A"s, Control::ArrowUp },
-    { "\e[B"s, Control::ArrowDown },
-    { "\e[C"s, Control::ArrowRight },
-    { "\e[D"s, Control::ArrowLeft },
-    { "\e[3~"s, Control::Delete },
-    { "\e:"s, Control::Command }
-};
 
 GridLogic::GridLogic():
         disp(20, 10, std::cout),
@@ -49,7 +28,7 @@ void GridLogic::tick() {
 }
 
 void GridLogic::handleEscape() {
-    std::string escapeSequence = "\e";
+    std::string escapeSequence {};
     auto code = controlCodes.end();
     do {
         char c;
@@ -57,32 +36,10 @@ void GridLogic::handleEscape() {
         // reset if char is the escape again
         if(c == '\e') {
             escapeSequence.clear();
+        } else {
+            escapeSequence += c;
+            code = controlCodes.find(escapeSequence);
         }
-        escapeSequence += c;
-        code = controlCodes.find(escapeSequence);
     } while(code == controlCodes.end());
-    if(code != controlCodes.end()) {
-        switch(code->second) {
-            case Control::ArrowUp:
-                disp.addCursorPos(0, -1);
-                break;
-            case Control::ArrowDown:
-                disp.addCursorPos(0, 1);
-                break;
-            case Control::ArrowRight:
-                disp.addCursorPos(1, 0);
-                break;
-            case Control::ArrowLeft:
-                disp.addCursorPos(-1, 0);
-                break;
-            case Control::Delete:
-                disp.setDisplayPixel(' ');
-                break;
-            case Control::Command:
-                ;
-                break;
-            default:
-                ;
-        }
-    }
+    code->second(disp);
 }
