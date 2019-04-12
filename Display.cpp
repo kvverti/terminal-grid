@@ -5,6 +5,7 @@
 Display::Display(int width, int height, std::ostream& output):
         display(width * height, ' '),
         output(output),
+        commandBuffer(),
         posX(0),
         posY(0),
         width(width),
@@ -14,8 +15,14 @@ std::pair<int, int> Display::getCursorPos() const {
     return { posX, posY };
 }
 
+std::string& Display::command() {
+    return commandBuffer;
+}
+
 void Display::update() {
     std::string caps(width + 2, '-');
+    // reset position
+    output << '\r';
     for(int i = 0; i < height + 2; ++i) {
         output << "\e[A";
     }
@@ -31,7 +38,10 @@ void Display::update() {
         }
         output << '|' << '\n';
     }
-    output << caps << '\n';
+    output << caps << '\n' << commandBuffer << std::string(width + 2, ' ');
+    for(int i = 0; i < width + 2; ++i) {
+        output << "\e[D";
+    }
 }
 
 void Display::addCursorPos(int dx, int dy) {

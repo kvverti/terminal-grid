@@ -1,6 +1,7 @@
 #ifndef DISPLAY_H
 #define DISPLAY_H
 #include <vector>
+#include <string>
 #include <iosfwd>
 
 class Display {
@@ -14,10 +15,12 @@ public:
     void update();
     void addCursorPos(int dx, int dy);
     void setDisplayPixel(char c);
+    std::string& command();
 
 private:
     std::vector<char> display;
     std::ostream& output;
+    std::string commandBuffer;
     int posX;
     int posY;
     int width;

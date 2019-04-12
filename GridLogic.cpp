@@ -4,9 +4,21 @@
 
 GridLogic::GridLogic():
         disp(20, 10, std::cout),
-        input(std::cin) { }
+        input(std::cin),
+        mode(Mode::Input) { }
 
 void GridLogic::tick() {
+    switch(mode) {
+        case Mode::Input:
+            tickInput();
+            break;
+        case Mode::Command:
+            tickCommand();
+            break;
+    }
+}
+
+void GridLogic::tickInput() {
     char c;
     input.get(c);
     switch(c) {
@@ -27,6 +39,32 @@ void GridLogic::tick() {
     disp.update();
 }
 
+void GridLogic::tickCommand() {
+    char c;
+    input.get(c);
+    std::string& command = disp.command();
+    switch(c) {
+        case '\e':
+            // do nothing
+            break;
+        case '\177':
+            if(command.length() > 1) {
+                command.resize(command.length() - 1);
+            }
+            break;
+        case '\n':
+            // newline swaps input mode back
+            setInputMode(Mode::Input);
+            std::fill(command.begin(), command.end(), ' ');
+            disp.update();
+            command.clear();
+            break;
+        default:
+            command += c;
+    }
+    disp.update();
+}
+
 void GridLogic::handleEscape() {
     std::string escapeSequence {};
     auto code = controlCodes.end();
@@ -41,5 +79,9 @@ void GridLogic::handleEscape() {
             code = controlCodes.find(escapeSequence);
         }
     } while(code == controlCodes.end());
-    code->second(disp);
+    code->second(*this, disp);
+}
+
+void GridLogic::setInputMode(Mode mode) {
+    this->mode = mode;
 }
