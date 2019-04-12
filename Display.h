@@ -21,6 +21,7 @@ private:
     std::vector<char> display;
     std::ostream& output;
     std::string commandBuffer;
+    std::string::size_type oldCommandLen;
     int posX;
     int posY;
     int width;

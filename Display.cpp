@@ -6,6 +6,7 @@ Display::Display(int width, int height, std::ostream& output):
         display(width * height, ' '),
         output(output),
         commandBuffer(),
+        oldCommandLen(0),
         posX(0),
         posY(0),
         width(width),
@@ -38,10 +39,9 @@ void Display::update() {
         }
         output << '|' << '\n';
     }
-    output << caps << '\n' << commandBuffer << std::string(width + 2, ' ');
-    for(int i = 0; i < width + 2; ++i) {
-        output << "\e[D";
-    }
+    output << caps << '\n' << std::string(oldCommandLen, ' ')
+        << '\r' << commandBuffer;
+    oldCommandLen = commandBuffer.size();
 }
 
 void Display::addCursorPos(int dx, int dy) {

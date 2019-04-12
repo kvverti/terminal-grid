@@ -48,15 +48,13 @@ void GridLogic::tickCommand() {
             // do nothing
             break;
         case '\177':
-            if(command.length() > 1) {
-                command.resize(command.length() - 1);
+            if(command.size() > 1) {
+                command.pop_back();
             }
             break;
         case '\n':
             // newline swaps input mode back
             setInputMode(Mode::Input);
-            std::fill(command.begin(), command.end(), ' ');
-            disp.update();
             command.clear();
             break;
         default:
